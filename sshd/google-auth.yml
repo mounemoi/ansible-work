@@ -1,0 +1,46 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: 'install google-authenticator'
+      yum:
+        name: google-authenticator
+        state: latest
+        enablerepo: epel
+    - name: 'update sshd_config : enable ChallengeResponseAuthentication'
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        state: present
+        backrefs: yes
+        regexp: '^#?ChallengeResponseAuthentication'
+        line: 'ChallengeResponseAuthentication yes'
+    - name: 'update sshd_config : add AuthenticationMethods'
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        line: 'AuthenticationMethods publickey,keyboard-interactive'
+    - name: 'copy pam.d'
+      copy:
+        src: ./google-auth/pam
+        dest: /etc/pam.d/google-auth
+        owner: root
+        group: root
+        mode: 0644
+    - name: 'update pam sshd'
+      lineinfile:
+        dest: /etc/pam.d/sshd
+        state: present
+        backrefs: yes
+        regexp: '^auth       substack     password-auth'
+        line: 'auth       substack     google-auth'
+    - name: 'add google-auth enable script'
+      copy:
+        src: ./google-auth/google-authenticator.sh
+        dest: /etc/profile.d/google-authenticator.sh
+        owner: root
+        group: root
+        mode: 0755
+    - name: 'restart sshd'
+      systemd:
+        name: sshd.service
+        state: restarted
+        daemon_reload: yes
+

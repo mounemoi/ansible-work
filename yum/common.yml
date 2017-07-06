@@ -1,0 +1,18 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: 'yum update'
+      yum:
+        name: '*'
+        state: latest
+    - name: 'add epel'
+      yum:
+        name: epel-release
+        state: latest
+    - name: 'disable epel by default'
+      lineinfile:
+        dest: /etc/yum.repos.d/epel.repo
+        state: present
+        backrefs: yes
+        regexp: '^enabled=1'
+        line: 'enabled=0'
