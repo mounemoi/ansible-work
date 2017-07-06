@@ -1,0 +1,15 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: 'update sshd_config'
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        state: present
+        backrefs: yes
+        regexp: '^#?Port\s'
+        line: 'Port 1000'
+    - name: 'restart sshd'
+      systemd:
+        name: sshd.service
+        state: restarted
+        daemon_reload: yes
