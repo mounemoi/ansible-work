@@ -1,0 +1,14 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: 'install sudo'
+      yum:
+        name: sudo
+        state: latest
+    - name: 'allow `sudo` to wheel group users'
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        backrefs: yes
+        regexp: '^#?%wheel\s*ALL=\(ALL\)\s*ALL'
+        line: '%wheel ALL=(ALL) ALL'
