@@ -8,8 +8,22 @@
         backrefs: yes
         regexp: '^#?Port\s'
         line: 'Port 1000'
+    - name: 'allow 1000/tcp'
+      firewalld:
+        zone: 'public'
+        port: 1000/tcp
+        state: enabled
+        permanent: true
+        immediate: true
     - name: 'restart sshd'
       systemd:
         name: sshd.service
         state: restarted
         daemon_reload: yes
+    - name: 'deny ssh/tcp'
+      firewalld:
+        zone: 'public'
+        service: 'ssh'
+        state: disabled
+        permanent: true
+        immediate: true
